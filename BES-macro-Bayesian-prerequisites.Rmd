@@ -1,7 +1,9 @@
 ---
 title: "Pre-requisites for BES Macro Bayesian Workshop"
 author: "Ruth Kelly and Andrew Jackson"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 In preparation for the course please install the following, preferably in the below suggested order. Make sure you run these before you arrive in case of poor (or crowded!) internet.
@@ -46,9 +48,9 @@ Andrew Jackson has a youtube channel with [podcasts](https://www.youtube.com/pla
 
 ### Troubleshooting 
 
-The steps above do not require any unusual package installations. The main thing to watch for is that you have installed JAGS directly from the sourceforge website, and the R packages rjags and R2jags which are the interfaces between R and JAGS. Installing the R packags **does not** install the actual JAGS software and vice versa.
+The steps above do not require any unusual package installations. The main thing to watch for is that you have installed JAGS directly from the sourceforge website, and the R packages rjags and R2jags which are the interfaces between R and JAGS. Installing the R packages **does not** install the actual JAGS software and vice versa.
 
 The other main problem will be out of date Rstudio and R installations.
 
-If you run into any other problems please drop us a line at <a.jackson@tcd.ie> or <KELLYR44@tcd.ie>.
+If you run into any other problems please drop us a line at <kevin.healy@nuigalway.ie> <a.jackson@tcd.ie> or <KELLYR44@tcd.ie>.
 
