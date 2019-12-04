@@ -1,0 +1,54 @@
+---
+title: "Pre-requisites for BES Macro Bayesian Workshop"
+author: "Ruth Kelly and Andrew Jackson"
+output: html_document
+---
+
+In preparation for the course please install the following, preferably in the below suggested order. Make sure you run these before you arrive in case of poor (or crowded!) internet.
+
+Remember you will need to bring your own personal computer for the duration of the course.
+
+### Step 1
+
+Install / update the following using the corresponding links and *make sure you have the latest versions installed* (note that R does not update itself, and instead you need to check your current version,  which can be done by typing `version` with no brackets into the console window, against the online version:
+
+-	R: [http://www.r-project.org](http://www.r-project.org)
+
+-	Rstudio (optional but **_highly_** recommended): [https://www.rstudio.com](https://www.rstudio.com)
+
+-	JAGS: http://sourceforge.net/projects/mcmc-jags/files/ **_This step is really important and easy to skip over. JAGS is required, and is not installed as part of the R package rjags which is just a set of functions for R to interact with JAGS._**
+
+### Step 2
+
+Now install all the packages required for the course by entering the following code in to R
+
+```{r,eval=FALSE}
+install.packages(c('rjags', 'R2jags', 'devtools', 'tidyverse', 'vegan', 'ellipse', 'MCMCglmm'))
+
+# check that they load
+library(devtools) 
+library(tidyverse)
+library(rjags)
+library(R2jags)
+library(MCMCglmm)
+
+```
+
+These will install the most up to date versions of the packages. Note that this might take a while as some of these are pretty big and complicated packages.
+
+ 
+### Step 3
+ 
+Finally if you would like to do some pre-course reading (recommended) there are some papers which can be accessed [here](https://github.com/andrewcparnell/simms_course/tree/master/papers).
+
+Andrew Jackson has a youtube channel with [podcasts](https://www.youtube.com/playlist?list=PLXXzyqr0tEhPRNDuEQ6wcvMcpAkGRjVqs) on introduction to using R for linear modelling. There are links in the description to an associated repository of scripts and examples to go with it. For this course, you should certainly be comfortable open a project in R, setting up a new Rnotebook, Rmd or script file as you prefer for your analyses (I prefer Rnotebooks), importing data and generating summary statistics, fitting simple linear models and graphing your data and model output.
+
+
+### Troubleshooting 
+
+The steps above do not require any unusual package installations. The main thing to watch for is that you have installed JAGS directly from the sourceforge website, and the R packages rjags and R2jags which are the interfaces between R and JAGS. Installing the R packags **does not** install the actual JAGS software and vice versa.
+
+The other main problem will be out of date Rstudio and R installations.
+
+If you run into any other problems please drop us a line at <a.jackson@tcd.ie> or <KELLYR44@tcd.ie>.
+
