@@ -197,14 +197,15 @@ summary {
 <div id="step-2" class="section level3">
 <h3>Step 2</h3>
 <p>Now install all the packages required for the course by entering the following code in to R</p>
-<pre class="r"><code>install.packages(c('rjags', 'R2jags', 'devtools', 'tidyverse', 'vegan', 'ellipse', 'MCMCglmm'))
+<pre class="r"><code>install.packages(c('rjags', 'R2jags', 'devtools', 'tidyverse', 'vegan', 'lme4', 'ellipse', 'MCMCglmm'))
 
 devtools::install_github(&quot;TGuillerme/mulTree&quot;, ref = &quot;release&quot;)
 devtools::install_github(&quot;healyke/SIDER@v1.0.0.0&quot;, build_vignettes = FALSE)
 
 
 # check that they load
-library(devtools) 
+library(devtools)
+library(lme4)
 library(tidyverse)
 library(rjags)
 library(R2jags)
