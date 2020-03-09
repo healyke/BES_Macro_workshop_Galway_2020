@@ -2,8 +2,8 @@
 title: "Pre-requisites for BES Macro Bayesian Workshop"
 author: "Ruth Kelly and Andrew Jackson"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 In preparation for the course please install the following, preferably in the below suggested order. Make sure you run these before you arrive in case of poor (or crowded!) internet.
@@ -27,17 +27,23 @@ Now install all the packages required for the course by entering the following c
 ```{r,eval=FALSE}
 install.packages(c('rjags', 'R2jags', 'devtools', 'tidyverse', 'vegan', 'ellipse', 'MCMCglmm'))
 
+devtools::install_github("TGuillerme/mulTree", ref = "release")
+devtools::install_github("healyke/SIDER@v1.0.0.0", build_vignettes = FALSE)
+
+
 # check that they load
 library(devtools) 
 library(tidyverse)
 library(rjags)
 library(R2jags)
 library(MCMCglmm)
+library(mulTree)
+library(SIDER)
+
 
 ```
 
-These will install the most up to date versions of the packages. Note that this might take a while as some of these are pretty big and complicated packages.
-
+These will install the most up to date versions of the packages. Note that this might take a while as some of these are pretty big and complicated packages. If you have trouble with eiter mulTree or SIDER dont worry too much as these packages will act as examples and are not core to the workshop.
  
 ### Step 3
  
@@ -50,7 +56,8 @@ Andrew Jackson has a youtube channel with [podcasts](https://www.youtube.com/pla
 
 The steps above do not require any unusual package installations. The main thing to watch for is that you have installed JAGS directly from the sourceforge website, and the R packages rjags and R2jags which are the interfaces between R and JAGS. Installing the R packages **does not** install the actual JAGS software and vice versa.
 
-The other main problem will be out of date Rstudio and R installations.
+The other main problem will be out of date Rstudio and R installations. This  might particulalry cause issues with either mulTree of SIDER.
+
 
 If you run into any other problems please drop us a line at <kevin.healy@nuigalway.ie> <a.jackson@tcd.ie> or <KELLYR44@tcd.ie>.
 
