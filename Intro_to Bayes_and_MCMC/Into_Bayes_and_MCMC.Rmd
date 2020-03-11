@@ -1,0 +1,225 @@
+---
+title: "Intro_Bayes"
+author: "Kevin Healy"
+date: "09/03/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Before we start lets just load a couple of packages we may need. You should have already install the required packages from the prerequisites document that you can find on the workshops Github page (https://github.com/healyke/BES_Macro_workshop_Galway_2020).
+
+```{r loading , warning=FALSE}
+
+library("coda")
+library("lattice")
+
+```
+
+# Frequentist v Bayesian perspectives
+
+The majority of people learn statistics from a Frequentist perspective so lets start there. Imagine we have a coin and we want to estimate the probability of getting a head, p(H). One way is to flip the coin and use the frequency of heads, f(H), as your estimate of the probability of getting a head. In essence the value for f(H) is your maximum likelihood estimate which is the classic frequentist perspective. 
+
+Say we flip the coin 10 times and get 7 heads. Then f(H) = 7/10 = 0.7. If we were going to put a bet on whether the next flip will be heads or tails we should go for heads as f(H) = p(H) = 0.7.
+
+The Bayesian perspective in contrast doesn't use a single maximum likelihood estimate but instead thinks about the problem using probability distributions. Instead lets first estimate the likelihood, from 0 to 1, of getting data we found given that the probability of H really is p(H) = 0.7. This can be wrote as P(data | P(H)). Since there is only two possible outcomes (heads, tails) we can use a binomial distribution to create such a likelihood distribution.
+
+
+```{r P(data | P(B)), warning=FALSE}
+
+##we create a probabilty range for the next flip to be a head to be between 0 and 1
+prob_range_0_1 <- seq(0, 1, length.out = 100)
+
+##we now use a binomial distribution with the probabilty of getting heads as 0.7.
+prob_binomial  <- dbinom(x = 7, 
+                         prob = prob_range_0_1, 
+                         size = 10)
+
+prob_binomial <- prob_binomial/sum(prob_binomial)
+
+#lets plot it out.
+plot(prob_range_0_1, prob_binomial,
+type = "l", xlab = "P(Heads)", ylab = "Density")
+
+```
+
+
+If we were sticking with our frequentist approach we would conclude that 0.7 is indeed the maximum likelihood as that is were our distribution peaks. However now we can see the likelihood of all the other events. Using such a distribution is already a shift in our way of thinking about the outcomes. If we were using our Frequentist perspective we would still think that heads is a good bet. 
+
+
+
+## Prior
+
+However, using a Bayesian perspective we can add other information into our predictions. In particular we can include our prior beliefs about what would happen. 
+
+In the case of flipping a coin you might think maybe betting on heads isn't as sure a bet as it seems because your prior knowledge of coins is that they are fair and hence you would expect that P(H) = 0.5. Just like before we can create a distribution for our prior and plot it.
+
+
+```{r P(B)) , warning=FALSE}
+
+##if we wanted to use a normal distibution 
+#prob_prior  <- dnorm(x = prob_range_0_1, mean = 0.5, sd = 0.1)
+
+prob_prior_bn  <- dbinom(x = 5, 
+                         prob = prob_range_0_1, 
+                         size = 10)
+
+prob_prior_bn <- prob_prior_bn/sum(prob_prior_bn)
+
+plot(prob_range_0_1, prob_binomial,
+type = "l", xlab = "P(Heads)", ylab = "Density")
+
+lines(prob_range_0_1, 
+      prob_prior_bn,
+      col = "red")
+
+```
+
+
+We can combine these distributions to get an updated distribution that will include information about the data we just saw and what we would have expected prior to flipping the coin. We can do this by multiplying these two distributions together to get what is called the unstandardised posterior distribution of P(H) and P(data | H). This will make up the numerator of Bayes theorem.
+
+```{r unstandardised, warning=FALSE}
+
+unstandardised_post <- prob_prior_bn*prob_binomial
+
+```
+
+
+However, we still need to standardise our density curve to ensure that it integrates to one. This is the function of the denominator of Bayes rule. For our example that is relatively straight forward. 
+
+
+```{r standardised, warning=FALSE}
+
+
+stdPost <- unstandardised_post / sum(unstandardised_post)
+
+
+plot(prob_range_0_1, stdPost,
+type = "l", xlab = "P(Heads)", ylab = "Density", col = "blue")
+
+lines(prob_range_0_1, 
+      prob_prior_bn,
+      col = "red")
+
+
+lines(prob_range_0_1, prob_binomial, col = "black")
+
+legend("topleft", legend = c("Lik", "Prior", "Post"),
+text.col = 1:4, bty = "n")
+
+```
+
+After we have updated our distribution we can see that our final posterior distribution is in between our prior and our likelihood distribution from the data. The stronger the prior the more it will shift our posterior distribution.
+
+The main purpose of this is that a Bayesian perspective thinks more in distributions and you can update you current knowledge using priors. One of the difficulties however is that standardising is not always easy because we need to know the probability of all events. For a coin flip that easy as there is only two possible outcomes (heads, tails). For something like the slope in a glm practically all values are possible so we can't calculate the denominator of Bays theorem.
+
+
+# MCMC
+
+A Markov Chain (the second MC in MCMC) is a process describing how values are decided based on some previous event. For example, an MC might help describe the weather. If today is sunny it is likely tomorrow is also going to be sunny the next day etc. However there is always a small chance that it might rain. By allowing the Markov chain to explore such weather switches we can figure out the expected distribution of weather events.
+
+We can also use Markov Chains to explore values in parameter space. In the below example we will allow a chain designed to find the highest value in some parameter space. Let make one.
+
+First we need to create a parameter space. All you need to know is that values increase and decrease across this 2 dimensional space. The redder the area the higher the parameter value associated with it.
+
+```{r create a space, warning=FALSE}
+
+test <- function (x,y) {
+    return(20*exp(-0.2*sqrt((x^2+y^2)/2))-exp(0.5*(cos(2*pi*x)+cos(2*pi*y)))+22.71828 )
+}
+
+points = matrix(nrow=61, ncol=61, seq(-3,3,0.1)) ## Test points for plotting
+filled.contour(x=points[,1], y=points[,1], z =test(points,t(points)), nlevels=20)
+
+```
+
+
+We want to create a Markov chain that will explore this space and find the highest value.
+
+We can create a little function that compares its current value with some new value and decides which one is better. If the new value is higher we move to it according to some probability determined by how much higher it is compared to the current value. The lower the difference the lower the chance of moving to the new value. If the new value is not higher we pick a new number and try again. 
+
+```{r MC function, warning=FALSE}
+
+accept = function(x1, y1, x2, y2) {
+    score1 = test(x1,y1)
+    score2 = test(x2,y2)
+    if (exp(-0.4*(score2-score1)) < runif(1) ) {
+        return(TRUE)  ## Accept new solution
+    }
+    return(FALSE)  ## Reject new solution
+}
+
+```
+
+
+
+To start our chain we just start somewhere random. For our example lets just set it at x = 2 and y = 2.5 so everyone gets a similar chain.
+
+```{r MC start, warning=FALSE}
+
+#x = runif(1,0,2)
+#y = runif(1, 0,2)
+x = 2
+y = 2.5
+position = data.frame(x,y)
+
+
+```
+
+
+Next we decide how far our MCMC jumps between each step and how many steps we allow it to have.
+
+```{r jump start, warning=FALSE}
+
+jmp <- 0.1
+iter <- 10000
+naccepted <- 1
+
+```
+
+
+We now let it run it. This may take a few moments as the chain moves around parameter space looking for the highest value.
+
+```{r run start, warning=FALSE}
+
+
+for (i in 1:iter) {
+    n <- length(position[,1])
+    new_x <- rnorm(1, position[n,1], jmp)
+    new_y <- rnorm(1, position[n,2], jmp)
+    
+    if (accept( position[n,1], position[n,2],new_x, new_y )) {
+        position[n+1,1] <- new_x
+        position[n+1,2] <- new_y
+        naccepted = naccepted + 1
+    }  else{  
+        position[n+1,1] <- rnorm(1, position[n,1], 0.01)
+        position[n+1,2] <- rnorm(1, position[n,2], 0.01)
+    }
+}
+
+points = matrix(nrow=61, ncol=61, seq(-3,3,0.1)) ## Test points for plotting
+filled.contour(x=points[,1], y=points[,1], z =test(points,t(points)), nlevels=20)
+lines(position[,1] -0.8, position[,2])
+
+```
+
+
+You can see how the chain moves around parameter space looking for the highest value. This is analogous to how the MCMC process samples the likelihood space for all of the parameters in you model. If we imagined here that it was for two parameters represented by the x and y axis we could plot out how often the chain spent at different values, just like wit the weather example. 
+
+```{r postion 1, warning=FALSE}
+
+plot(as.mcmc(position[,1]))
+
+```
+
+
+```{r postion 2, warning=FALSE}
+
+plot(as.mcmc(position[,2]))
+
+```
+
+
+
+

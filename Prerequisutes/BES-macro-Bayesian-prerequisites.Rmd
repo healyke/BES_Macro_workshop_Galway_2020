@@ -2,8 +2,8 @@
 title: "Pre-requisites for BES Macro Bayesian Workshop"
 author: "Ruth Kelly and Andrew Jackson"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 In preparation for the course please install the following, preferably in the below suggested order. Make sure you run these before you arrive in case of poor (or crowded!) internet.
